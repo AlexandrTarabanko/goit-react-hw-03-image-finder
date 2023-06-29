@@ -3,12 +3,12 @@ import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 export const ImageGallery = ({ images }) => {
   return (
     <ul className="gallery">
-      {images.map(({ id, largeImageURL, webformatURL, tags }) => (
+      {images.map(({ largeImage, smallImage, tags }, idx) => (
         <ImageGalleryItem
-          key={id}
+          key={idx}
           alt={tags}
-          smallImg={webformatURL}
-          largeImg={largeImageURL}
+          smallImg={smallImage}
+          largeImg={largeImage}
         />
       ))}
     </ul>
