@@ -1,10 +1,11 @@
 import { Oval } from 'react-loader-spinner';
+import css from './App.module.css';
 import { Component } from 'react';
 import { getImages } from 'api/api';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
-import css from './App.module.css';
+import { Modal } from './Modal/Modal';
 
 export class App extends Component {
   state = {
@@ -14,6 +15,9 @@ export class App extends Component {
     error: false,
     images: [],
     totalImg: null,
+    showModal: false,
+    modalImgSrc: null,
+    modalImgAlt: null,
   };
 
   componentDidUpdate(_, prevState) {
@@ -22,51 +26,47 @@ export class App extends Component {
     if (prevState.query !== query) {
       this.setState({ isLoading: !isLoading });
 
-      setTimeout(() => {
-        getImages(query)
-          .then(({ hits, totalHits }) => {
-            const imagesArr = hits.map(image => ({
-              tags: image.tags,
-              smallImage: image.webformatURL,
-              largeImage: image.largeImageURL,
-            }));
+      getImages(query)
+        .then(({ hits, totalHits }) => {
+          const imagesArr = hits.map(image => ({
+            tags: image.tags,
+            smallImage: image.webformatURL,
+            largeImage: image.largeImageURL,
+          }));
 
-            return this.setState({
-              page: 1,
-              images: imagesArr,
-              totalImg: totalHits,
-            });
-          })
-          .catch(error => this.setState({ error }))
-          .finally(() =>
-            this.setState(({ isLoading }) => ({ isLoading: !isLoading }))
-          );
-      }, 5000);
+          return this.setState({
+            page: 1,
+            images: imagesArr,
+            totalImg: totalHits,
+          });
+        })
+        .catch(error => this.setState({ error }))
+        .finally(() =>
+          this.setState(({ isLoading }) => ({ isLoading: !isLoading }))
+        );
     }
 
-    if (prevState.page !== page && prevState.page !== 1) {
+    if (prevState.page !== page && page !== 1) {
       this.setState({ isLoading: !isLoading });
 
-      setTimeout(() => {
-        getImages(query, page)
-          .then(({ hits }) => {
-            const imagesArr = hits.map(image => ({
-              tags: image.tags,
-              smallImage: image.webformatURL,
-              largeImage: image.largeImageURL,
-            }));
+      getImages(query, page)
+        .then(({ hits }) => {
+          const imagesArr = hits.map(image => ({
+            tags: image.tags,
+            smallImage: image.webformatURL,
+            largeImage: image.largeImageURL,
+          }));
 
-            this.setState(prevState => {
-              return {
-                images: [...prevState.images, ...imagesArr],
-              };
-            });
-          })
-          .catch(error => this.setState({ error }))
-          .finally(() =>
-            this.setState(({ isLoading }) => ({ isLoading: !isLoading }))
-          );
-      }, 5000);
+          this.setState(prevState => {
+            return {
+              images: [...prevState.images, ...imagesArr],
+            };
+          });
+        })
+        .catch(error => this.setState({ error }))
+        .finally(() =>
+          this.setState(({ isLoading }) => ({ isLoading: !isLoading }))
+        );
     }
   }
 
@@ -78,13 +78,35 @@ export class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+
+  handleOpenImg = e => {
+    const targetImgSrc = e.target.id;
+    const targetImgAlt = e.target.alt;
+
+    if (e.target.nodeName === 'IMG') {
+      this.setState(({ showModal }) => ({
+        showModal: !showModal,
+        modalImgSrc: targetImgSrc,
+        modalImgAlt: targetImgAlt,
+      }));
+    }
+  };
+
   render() {
-    const { images, totalImg, isLoading } = this.state;
+    const { images, totalImg, isLoading, showModal, modalImgSrc, modalImgAlt } =
+      this.state;
 
     return (
       <>
         <Searchbar onSubmit={this.onSubmit} />
-        {images && <ImageGallery images={images} />}
+        {images && (
+          <ImageGallery images={images} handleOpenImg={this.handleOpenImg} />
+        )}
         {images.length >= 12 && totalImg > images.length && (
           <Button isLoading={isLoading} onPagination={this.onPagination} />
         )}
@@ -100,6 +122,13 @@ export class App extends Component {
             secondaryColor="#0000FF"
             strokeWidth={2}
             strokeWidthSecondary={2}
+          />
+        )}
+        {showModal && (
+          <Modal
+            toggleModal={this.toggleModal}
+            modalImgSrc={modalImgSrc}
+            modalImgAlt={modalImgAlt}
           />
         )}
       </>

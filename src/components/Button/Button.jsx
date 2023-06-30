@@ -1,8 +1,14 @@
 import PropTypes from 'prop-types';
+import css from './Button.module.css';
 
 export const Button = ({ onPagination, isLoading }) => {
   return (
-    <button disabled={isLoading} type="button" onClick={onPagination}>
+    <button
+      className={css.loadBtn}
+      disabled={isLoading}
+      type="button"
+      onClick={onPagination}
+    >
       Load More
     </button>
   );
@@ -10,4 +16,5 @@ export const Button = ({ onPagination, isLoading }) => {
 
 Button.propTypes = {
   onPagination: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 };

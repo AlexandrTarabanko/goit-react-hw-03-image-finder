@@ -1,0 +1,18 @@
+.galletyItem{
+    cursor: zoom-in;
+    height: auto;
+    width: 300px;
+    transition: border-color 500ms;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
+    &:hover{
+        border: 2px solid;
+        border-color: blue;
+    }
+}
+
+.galleryImg{
+    height: 100%;
+}

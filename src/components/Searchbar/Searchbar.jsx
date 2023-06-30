@@ -1,6 +1,13 @@
+import PropTypes from 'prop-types';
+import Notiflix from 'notiflix';
 import { Component } from 'react';
+import css from './Searchbar.module.css';
 
 export class Searchbar extends Component {
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
+
   state = {
     query: '',
   };
@@ -16,7 +23,7 @@ export class Searchbar extends Component {
     e.preventDefault();
 
     if (query.trim() === '') {
-      alert('Invalid input, please try again');
+      Notiflix.Notify.failure('Invalid input, please try again');
       return;
     }
 
@@ -32,14 +39,14 @@ export class Searchbar extends Component {
     const { query } = this.state;
 
     return (
-      <header className="searchbar">
-        <form onSubmit={this.onFormSubmit} className="form">
-          <button type="submit" className="button">
+      <header className={css.searchbar}>
+        <form onSubmit={this.onFormSubmit} className={css.form}>
+          <button type="submit" className={css.submitBtn}>
             <span className="button-label">Search</span>
           </button>
 
           <input
-            className="input"
+            className={css.input}
             name="query"
             type="text"
             autoComplete="off"
