@@ -90,7 +90,6 @@ export class App extends Component {
 
     return (
       <>
-        <button>{console.log(this.state)}</button>
         <Searchbar onSubmit={this.onSubmit} />
         {images && (
           <ImageGallery images={images} handleOpenImg={this.handleOpenImg} />
