@@ -21,57 +21,44 @@ export class App extends Component {
   };
 
   componentDidUpdate(_, prevState) {
-    const { query, isLoading, page } = this.state;
+    const { query, page } = this.state;
 
     if (prevState.query !== query) {
-      this.setState({ isLoading: !isLoading });
-
-      getImages(query)
-        .then(({ hits, totalHits }) => {
-          const imagesArr = hits.map(image => ({
-            tags: image.tags,
-            smallImage: image.webformatURL,
-            largeImage: image.largeImageURL,
-          }));
-
-          return this.setState({
-            page: 1,
-            images: imagesArr,
-            totalImg: totalHits,
-          });
-        })
-        .catch(error => this.setState({ error }))
-        .finally(() =>
-          this.setState(({ isLoading }) => ({ isLoading: !isLoading }))
-        );
+      this.onFetch(query);
     }
 
     if (prevState.page !== page && page !== 1) {
-      this.setState({ isLoading: !isLoading });
-
-      getImages(query, page)
-        .then(({ hits }) => {
-          const imagesArr = hits.map(image => ({
-            tags: image.tags,
-            smallImage: image.webformatURL,
-            largeImage: image.largeImageURL,
-          }));
-
-          this.setState(prevState => {
-            return {
-              images: [...prevState.images, ...imagesArr],
-            };
-          });
-        })
-        .catch(error => this.setState({ error }))
-        .finally(() =>
-          this.setState(({ isLoading }) => ({ isLoading: !isLoading }))
-        );
+      this.onFetch(query, page);
     }
   }
 
+  onFetch = (query, page) => {
+    const { isLoading } = this.state;
+    this.setState({ isLoading: !isLoading });
+
+    getImages(query, page)
+      .then(({ hits, totalHits }) => {
+        let imagesArr = hits.map(image => ({
+          tags: image.tags,
+          smallImage: image.webformatURL,
+          largeImage: image.largeImageURL,
+        }));
+
+        this.setState(prevState => {
+          return {
+            images: [...prevState.images, ...imagesArr],
+            totalImg: totalHits,
+          };
+        });
+      })
+      .catch(error => this.setState({ error }))
+      .finally(() =>
+        this.setState(({ isLoading }) => ({ isLoading: !isLoading }))
+      );
+  };
+
   onSubmit = query => {
-    this.setState({ query });
+    this.setState({ query, page: 1, images: [] });
   };
 
   onPagination = () => {
@@ -103,6 +90,7 @@ export class App extends Component {
 
     return (
       <>
+        <button>{console.log(this.state)}</button>
         <Searchbar onSubmit={this.onSubmit} />
         {images && (
           <ImageGallery images={images} handleOpenImg={this.handleOpenImg} />
